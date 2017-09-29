@@ -1,4 +1,4 @@
-package com.example.ogdc;
+package com.example.datacapture.domain;
 
 public class Cause {
 

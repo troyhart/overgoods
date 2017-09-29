@@ -1,4 +1,4 @@
-package com.example.ogdc;
+package com.example.datacapture.domain;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.example.core.Money;
+import com.example.common.commerce.Money;
 
 import io.jsonwebtoken.lang.Assert;
 

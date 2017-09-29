@@ -1,11 +1,13 @@
-package com.example.ogdc;
+package com.example.datacapture.domain;
 
-public class LineSerialNumberChangedEvent extends OvergoodsDataCaptureEvent {
+import com.example.datacapture.domain.agent.Agent;
+
+public class LineSerialNumberChangedEvent extends PackageDataCapturedEvent {
 
   private String newSerialNumber;
   private String oldSerialNumber;
 
-  public LineSerialNumberChangedEvent(OvergoodsId id, long version, DCAgent capturedBy, String oldSerialNumber,
+  public LineSerialNumberChangedEvent(PackageId id, long version, Agent capturedBy, String oldSerialNumber,
       String newSerialNumber) {
     super(id, version, capturedBy);
 

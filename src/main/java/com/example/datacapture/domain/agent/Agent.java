@@ -1,4 +1,4 @@
-package com.example.ogdc;
+package com.example.datacapture.domain.agent;
 
 import org.springframework.util.StringUtils;
 
@@ -10,12 +10,12 @@ import com.stormpath.sdk.lang.Assert;
  * @author troyh
  *
  */
-public class DCAgent {
+public class Agent {
 
-  private DCAgentId id;
+  private AgentId id;
   private String name;
 
-  public DCAgentId getId() {
+  public AgentId getId() {
     return id;
   }
 
@@ -24,22 +24,22 @@ public class DCAgent {
   }
 
   /**
-   * A package local DCAgent builder
+   * A package local Agent builder
    */
   static final class Builder {
-    private DCAgent value;
+    private Agent value;
 
     public Builder() {
-      this.value = new DCAgent();
+      this.value = new Agent();
     }
 
-    public DCAgent build() {
-      Assert.state(StringUtils.hasText(value.getName()), "Unable to build invalid DCAgent: null/blank name");
-      Assert.state(value.getId() != null, "Unable to build invalid DCAgent: null id");
+    public Agent build() {
+      Assert.state(StringUtils.hasText(value.getName()), "Unable to build invalid Agent: null/blank name");
+      Assert.state(value.getId() != null, "Unable to build invalid Agent: null id");
       return value;
     }
 
-    public Builder setId(DCAgentId id) {
+    public Builder setId(AgentId id) {
       value.id = id;
       return this;
     }

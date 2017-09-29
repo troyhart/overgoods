@@ -1,4 +1,4 @@
-package com.example.ogdc;
+package com.example.datacapture.domain;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 import io.jsonwebtoken.lang.Assert;
 
 /**
- * A child of {@link Overgoods} that represents some quantity stuff. Said stuff may be itemized with great care and
+ * A child of {@link Package} that represents some quantity stuff. Said stuff may be itemized with great care and
  * detail, or may be very tersely described.
  * 
  * <p>
@@ -31,7 +31,7 @@ public class Line {
    */
   public int getQty() {
     // Not itemized when serialNumbers is null; not itemized uses miscPieceCount as the quantity. Otherwise, the number
-    // of serial numbers in the set is the quantity. NOTE: serial number can be made up by DCAgent (eg. item1, item2,
+    // of serial numbers in the set is the quantity. NOTE: serial number can be made up by Agent (eg. item1, item2,
     // ...).
     return isItemized() ? serialNumbers.size() : (miscPieceCount <= 0 ? 1 : miscPieceCount);
   }

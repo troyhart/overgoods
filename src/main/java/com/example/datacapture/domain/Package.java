@@ -1,4 +1,4 @@
-package com.example.ogdc;
+package com.example.datacapture.domain;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -10,46 +10,47 @@ import java.util.stream.Collectors;
 
 import org.springframework.util.Assert;
 
-import com.example.infrastructure.DomainEntityId;
+import com.example.common.domain.EntityId;
+import com.example.datacapture.domain.agent.Agent;
 
-public final class Overgoods {
+public final class Package {
 
-  private OvergoodsId id;
+  private PackageId id;
   private long version = 0;
   private Cause cause;
   private Map<Long, Line> lines;
-  private Set<OvergoodsId> children;
-  private Set<OvergoodsId> parents;
-  private List<OvergoodsDataCaptureEvent> changes;
+  private Set<PackageId> children;
+  private Set<PackageId> parents;
+  private List<PackageDataCapturedEvent> changes;
   private long lastLineId = 0;
 
   /**
-   * For replay. Replay starts with this constructor, then invokes {@link #play(OvergoodsDataCaptureEvent[])}.
+   * For replay. Replay starts with this constructor, then invokes {@link #play(PackageDataCapturedEvent[])}.
    */
-  Overgoods() {
+  Package() {
   }
 
   /**
-   * A new Overgoods with its cause and unique identifier.
+   * A new Package with its cause and unique identifier.
    * 
    * @param id
    * @param cause
    * 
-   * @see OvergoodsFactory#newOvergood(Cause)
+   * @see PackageFactory#newOvergood(Cause)
    */
-  Overgoods(OvergoodsId id, DCAgent capturedBy, Cause cause) {
+  Package(PackageId id, Agent capturedBy, Cause cause) {
     Assert.notNull(id, "null id");
     Assert.notNull(capturedBy, "null capturedBy");
     Assert.notNull(cause, "null cause");
 
-    OvergoodsCreatedEvent ogce = new OvergoodsCreatedEvent(id, capturedBy, cause);
+    PackageCreatedEvent pce = new PackageCreatedEvent(id, capturedBy, cause);
 
     // the invocation of apply() below is valid because this class is final! If that changes, then the package local
     // apply() and play() methods must be declared to be final!!!
-    apply(ogce);
+    apply(pce);
   }
 
-  public DomainEntityId getId() {
+  public EntityId getId() {
     return id;
   }
 
@@ -94,33 +95,33 @@ public final class Overgoods {
     return getLines().get(id);
   }
 
-  public Set<OvergoodsId> getChildren() {
+  public Set<PackageId> getChildren() {
     return children == null ? Collections.emptySet() : Collections.unmodifiableSet(children);
   }
 
-  public Set<OvergoodsId> getParents() {
+  public Set<PackageId> getParents() {
     return parents == null ? Collections.emptySet() : Collections.unmodifiableSet(parents);
   }
 
   private long nextVersion() {
-    return (changes == null || changes.size() == 0) ? version + 1 : changes.get(changes.size() - 1).version() + 1;
+    return (changes == null || changes.size() == 0) ? version + 1 : changes.get(changes.size() - 1).getVersion() + 1;
   }
 
   private Long nextLineId() {
     return ++lastLineId;
   }
 
-  public void addLine(DCAgent dcAgent, Line line) {
+  public void addLine(Agent dcAgent, Line line) {
     LineAddedEvent lae = new LineAddedEvent(id, nextVersion(), dcAgent, line);
     apply(lae);
   }
 
-  public void split(DCAgent splitBy, Cause cause, OvergoodsFactory factory) {
+  public void split(Agent splitBy, Cause cause, PackageFactory factory) {
     // TODO: implement me....
     throw new UnsupportedOperationException("not yet implemented..........");
   }
 
-  public void split(DCAgent splitBy, Cause cause, String[] serialNumbersToCleave, OvergoodsFactory factory) {
+  public void split(Agent splitBy, Cause cause, String[] serialNumbersToCleave, PackageFactory factory) {
     // TODO: implement me....
     throw new UnsupportedOperationException("not yet implemented..........");
   }
@@ -129,26 +130,26 @@ public final class Overgoods {
   // begin: event logic
   // ------------------------------------------------------------------------------
 
-  List<OvergoodsDataCaptureEvent> clearChanges() {
-    List<OvergoodsDataCaptureEvent> changes = this.changes;
+  List<PackageDataCapturedEvent> clearChanges() {
+    List<PackageDataCapturedEvent> changes = this.changes;
     this.changes = null;
     return changes;
   }
 
-  void apply(OvergoodsDataCaptureEvent[] events) {
+  void apply(PackageDataCapturedEvent[] events) {
     Assert.isTrue(events != null && events.length > 0, "null/empty events");
-    for (OvergoodsDataCaptureEvent event : events) {
+    for (PackageDataCapturedEvent event : events) {
       apply(event);
     }
   }
 
   /**
-   * {@link #play(OvergoodsCreatedEvent) Play} the given event and record it in
+   * {@link #play(PackageCreatedEvent) Play} the given event and record it in
    * 
    * @param event
    *          the event to apply.
    */
-  void apply(OvergoodsDataCaptureEvent event) {
+  void apply(PackageDataCapturedEvent event) {
     play(event);
     if (changes == null) {
       changes = new ArrayList<>();
@@ -156,33 +157,33 @@ public final class Overgoods {
     changes.add(event);
   }
 
-  void play(OvergoodsDataCaptureEvent[] events) {
+  void play(PackageDataCapturedEvent[] events) {
     Assert.isTrue(events != null && events.length > 0, "null/empty events");
 
-    for (OvergoodsDataCaptureEvent event : events) {
+    for (PackageDataCapturedEvent event : events) {
       play(event);
     }
   }
 
-  void play(OvergoodsDataCaptureEvent event) {
+  void play(PackageDataCapturedEvent event) {
     Assert.notNull(event, "null event");
-    Assert.isTrue(version + 1 == event.version(),
-        String.format("Invalid event; wrong version! Expecting v-%s but got v-%s", version + 1, event.version()));
+    Assert.isTrue(version + 1 == event.getVersion(),
+        String.format("Invalid event; wrong version! Expecting v-%s but got v-%s", version + 1, event.getVersion()));
 
-    this.version = event.version();
+    this.version = event.getVersion();
     dispatch(event);
   }
 
-  private void dispatch(OvergoodsDataCaptureEvent event) {
-    if (event.version() == 1) {
-      play(OvergoodsCreatedEvent.class.cast(event));
+  private void dispatch(PackageDataCapturedEvent event) {
+    if (event.getVersion() == 1) {
+      play(PackageCreatedEvent.class.cast(event));
     }
     else {
-      // After OvergoodsCreatedEvent has been played (see first dispatch case above), the id MUST BE NON-NULL!!!!!
-      Assert.state(id != null, "Invalid state! Can not play the given event on an this unidentified Overgoods; Event="
-          + event.toString() + ", Overgoods=" + this.toString());
-      Assert.isTrue(id.equals(event.id()),
-          "Invalid event, wrong id! This Overgoods id==" + id + ", but given event.id==" + event.id());
+      // After PackageCreatedEvent has been played (see first dispatch case above), the id MUST BE NON-NULL!!!!!
+      Assert.state(id != null, "Invalid state! Can not play the given event on an this unidentified Package; Event="
+          + event.toString() + ", Package=" + this.toString());
+      Assert.isTrue(id.equals(event.getAggregateId()),
+          "Invalid event, wrong id! This Package id==" + id + ", but given event.id==" + event.getAggregateId());
 
       // handle remainder of event dispatches.
       if (LineAddedEvent.class.isInstance(event)) {
@@ -205,8 +206,8 @@ public final class Overgoods {
   // event specific play methods...each event type must be represented.
   // ----------------------------------------------------------
 
-  private void play(OvergoodsCreatedEvent event) {
-    this.id = event.id();// the only event that set's the OvergoodId.
+  private void play(PackageCreatedEvent event) {
+    this.id = event.getAggregateId();// the only event that set's the OvergoodId.
     this.cause = event.getCause();
     System.out.println("event played!: " + event);
   }
@@ -244,10 +245,10 @@ public final class Overgoods {
     if (obj == null) {
       return false;
     }
-    if (!(obj instanceof Overgoods)) {
+    if (!(obj instanceof Package)) {
       return false;
     }
-    Overgoods other = (Overgoods) obj;
+    Package other = (Package) obj;
     if (id == null) {
       if (other.id != null) {
         return false;
@@ -261,26 +262,12 @@ public final class Overgoods {
 
   @Override
   public String toString() {
-    return "Overgoods [id=" + getId() + ", version=" + getVersion() + ", cause=" + getCause() + ", parent="
+    return "Package [id=" + getId() + ", version=" + getVersion() + ", cause=" + getCause() + ", parent="
         + getParents().stream().map(p -> p.getRawId().toString()).collect(Collectors.joining(", ", "[", "]"))
         + ", children="
         + getChildren().stream().map(c -> c.getRawId().toString()).collect(Collectors.joining(", ", "[", "]"))
         + ", lines=" + getLines().keySet().stream().map(lk -> String.format("%s: %s", lk, getLine(lk)))
             .collect(Collectors.joining(", ", "{", "}"))
         + "]";
-  }
-
-  public static void main(String[] args) {
-    DCAgent agent = new DCAgent.Builder().setId(new DCAgentId("agent-id-1")).setName("Mr. DCAgent").build();
-    Cause cause = new Cause.Builder().setDescription("Testing testing.....this is the cause...........").build();
-
-    OvergoodsFactory fac = new OvergoodsFactory();
-    Overgoods og = fac.newOvergood(agent, cause);
-
-    Item item = new Item.Builder().setProductName("Some Product Name").build();
-    Line line = new Line.Builder("The first test line.").setItem(item).addSerialNumber("item-1").build();
-    og.addLine(agent, line);
-
-    System.out.println("Added line to new overgoods: " + og.toString());
   }
 }

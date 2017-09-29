@@ -1,15 +1,15 @@
-package com.example.infrastructure;
+package com.example.common.domain;
 
 
 import java.io.Serializable;
 
-public class DomainEntityId implements Serializable {
+public class EntityId implements Serializable {
 
   private static final long serialVersionUID = 1L;
 
   private String rawId;
 
-  protected DomainEntityId(String rawId) {
+  protected EntityId(String rawId) {
     this.rawId = rawId;
   }
 
@@ -38,10 +38,10 @@ public class DomainEntityId implements Serializable {
     if (obj == null) {
       return false;
     }
-    if (!(obj instanceof DomainEntityId)) {
+    if (!(obj instanceof EntityId)) {
       return false;
     }
-    DomainEntityId other = (DomainEntityId) obj;
+    EntityId other = (EntityId) obj;
     if (rawId == null) {
       if (other.rawId != null) {
         return false;
