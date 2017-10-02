@@ -4,7 +4,7 @@ public class EventId extends EntityId {
 
   private static final long serialVersionUID = 1L;
 
-  protected EventId(String rawId) {
+  public EventId(String rawId) {
     super(rawId);
   }
 

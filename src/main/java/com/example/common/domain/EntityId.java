@@ -9,7 +9,7 @@ public class EntityId implements Serializable {
 
   private String rawId;
 
-  protected EntityId(String rawId) {
+  public EntityId(String rawId) {
     this.rawId = rawId;
   }
 
@@ -19,7 +19,7 @@ public class EntityId implements Serializable {
 
   @Override
   public String toString() {
-    return rawId;
+    return "\"rawId\": \"" + getRawId() + "\"";
   }
 
   @Override

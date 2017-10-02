@@ -6,7 +6,7 @@ public class AgentId extends EntityId {
 
   private static final long serialVersionUID = 1L;
 
-  AgentId(String rawId) {
+  public AgentId(String rawId) {
     super(rawId);
   }
 }

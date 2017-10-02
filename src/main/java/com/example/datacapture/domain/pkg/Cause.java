@@ -1,4 +1,4 @@
-package com.example.datacapture.domain;
+package com.example.datacapture.domain.pkg;
 
 public class Cause {
 

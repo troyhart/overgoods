@@ -1,12 +1,10 @@
-package com.example.datacapture.domain;
+package com.example.datacapture.domain.pkg;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import com.example.common.commerce.Money;
 
 import io.jsonwebtoken.lang.Assert;
 
@@ -18,7 +16,6 @@ public class Item {
   private String productNumber;
   private String productName;
   private String detailedDescription;
-  private Money estimatedValue;
   private Map<Attribute, String> attributes;
 
   public String getProductNumber() {
@@ -33,11 +30,7 @@ public class Item {
     return detailedDescription;
   }
 
-  public Money getEstimatedValue() {
-    return estimatedValue;
-  }
-
-  public String get(Attribute attr) {
+  public String getAttributeValue(Attribute attr) {
     Assert.isTrue(contains(attr), "Invalid attribaute; check attributeSet() and only ask for defined attributes.");
     return attributes.get(attr);
   }
@@ -46,24 +39,33 @@ public class Item {
     return attributes == null ? false : attributes.containsKey(attr);
   }
 
-  public Set<Attribute> attributeSet() {
-    return attributes == null ? Collections.emptySet() : attributes.keySet();
+  public Set<Attribute> getAttributeSet() {
+    return attributes == null ? Collections.emptySet() : Collections.unmodifiableSet(attributes.keySet());
   }
 
 
   @Override
   public String toString() {
-    return getProductName() + " [productNumber=" + getProductNumber() + ", detailedDescription="
-        + getDetailedDescription() + ", attributes=" + attributeSet().stream()
-            .map(a -> String.format("%s='%s'", a.name(), get(a))).collect(Collectors.joining("; ", "[", "]"))
-        + ", estimatedValue=" + getEstimatedValue() + "]";
+    // @formatter:off
+
+    return 
+        "{\"productNumber\": " + getProductNumber() 
+        + ", \"productName\": \"" + getProductName()
+        + "\", \"detailedDescription\": \"" + getDetailedDescription() 
+        + "\", \"attributes\": " + getAttributeSet().stream().map(a -> 
+                  String.format("\"%s\": \"%s\"", a.name(), getAttributeValue(a)))
+                  .collect(Collectors.joining(", ", "{", "}"))
+        + "}";
+    
+    // @formatter:on
+
   }
 
 
   /**
    * A package local Item builder
    */
-  static final class Builder {
+  public static final class Builder {
     private Item value;
 
     public Builder() {
@@ -89,12 +91,6 @@ public class Item {
     public Builder setDetailedDescription(String detailedDescription) {
       Assert.hasText(detailedDescription, "null/blank detailedDescription");
       this.value.detailedDescription = detailedDescription;
-      return this;
-    }
-
-    public Builder setEstimatedValue(Money estimatedValue) {
-      Assert.notNull(estimatedValue, "null estimatedValue");
-      this.value.estimatedValue = estimatedValue;
       return this;
     }
 

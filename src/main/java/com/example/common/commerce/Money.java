@@ -14,6 +14,7 @@ import org.springframework.util.Assert;
  */
 public class Money {
   private static final RoundingMode ROUNDINGMODE = RoundingMode.HALF_EVEN;
+  private static final BigDecimal ZERO = new BigDecimal(0);
 
   public static enum Currency {
     USD('$'), YEN('\u00A5');
@@ -74,11 +75,11 @@ public class Money {
 
   public Money divide(BigDecimal divisor) {
     Assert.notNull(divisor, "null divisor");
+    Assert.isTrue(divisor.compareTo(ZERO) != 0, "can not divide by zero");
     return new Money(this.amount.divide(divisor), this.currency);
   }
 
   private void validateCurrency(Money value) {
-    Assert.notNull(value, "null value");
     Assert.isTrue(this.currency == value.currency,
         String.format("Mixed currency (%s, %s) operation not supported!", this.currency, value.currency));
   }
@@ -100,8 +101,8 @@ public class Money {
     Money m2 = new Money(new BigDecimal(-2), Currency.YEN);
     System.out.println("m2: " + m2.toString(true));
     System.out.println("");
-    BigDecimal bdzero = new BigDecimal(0);
-    BigDecimal bdnegone = new BigDecimal(-1);
+    BigDecimal ZERO = new BigDecimal(0);
+    BigDecimal NEG_ONE = new BigDecimal(-1);
     Money ma1 = m1;
     Money ma2 = m2;
     BigDecimal bda1;
@@ -109,17 +110,16 @@ public class Money {
     System.out.println(String.format("m2 + m1 ->\t%s\t+\t%s\t=\t%s", ma2, ma1, ma2.add(ma1).toString(true)));
     System.out.println(String.format("m1 - m2 ->\t%s\t-\t%s\t=\t%s", ma1, ma2, ma1.subtract(ma2).toString(true)));
     System.out.println(String.format("m2 - m1 ->\t%s\t-\t%s\t=\t%s", ma2, ma1, ma2.subtract(ma1).toString(true)));
-    ma1 = m1.multiply(bdnegone);
-    bda1 = bdzero;
+    ma1 = m1.multiply(NEG_ONE);
+    bda1 = ZERO;
     System.out.println(String.format("-m1 * 0 ->\t%s\t*\t%s\t=\t%s", ma1, bda1, ma1.multiply(bda1).toString(true)));
-    bda1 = bdnegone.multiply(new BigDecimal(2));
+    bda1 = new BigDecimal(-2);
     System.out.println(String.format("-m1 / -2 ->\t%s\t/\t%s\t=\t%s", ma1, bda1, ma1.divide(bda1).toString(false)));
     ma1 = m0;
     ma2 = m2;
     System.out.println("");
     System.out.println("m0 + m2 ->\twill fail for mixed currency operation...");
-    System.out
-        .println(String.format("If you can read this message the something is wrong!\nm0 + m2:\t%s\t+\t%s\t=\t%s",
-            ma1, ma2, ma1.add(ma2).toString(true)));
+    System.out.println(String.format("If you can read this message the something is wrong!\nm0 + m2:\t%s\t+\t%s\t=\t%s",
+        ma1, ma2, ma1.add(ma2).toString(true)));
   }
 }

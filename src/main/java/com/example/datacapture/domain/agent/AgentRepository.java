@@ -6,8 +6,8 @@ package com.example.datacapture.domain.agent;
 // @Service
 public class AgentRepository {
 
-  public Agent find(String id) {
+  public Agent find(AgentId agentId) {
     // a simple "play" implementation
-    return new Agent.Builder().setId(new AgentId(id)).setName("Mr. Big Time Data Capture Agent").build();
+    return new Agent.Builder().setId(agentId).setName("Mr. Big Time Data Capture Agent").build();
   }
 }
