@@ -13,9 +13,9 @@ public class TransactionHandler<T extends Command> extends ChainedHandler<T> {
   @Override
   public void handle(T command) {
     // TODO: handle transaction
-    System.out.println("beginning transaction.....");
+    System.out.println("[transaction-begin]");
     next().handle(command);
-    System.out.println("comitting transaction......");
+    System.out.println("[transaction-end]");
   }
 
 }

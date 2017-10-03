@@ -12,7 +12,6 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 import com.example.datacapture.domain.agent.Agent;
-import com.example.datacapture.domain.agent.AgentRepository;
 
 public final class Package {
 
@@ -110,17 +109,14 @@ public final class Package {
   // ------------------------------------------------------------------------------
 
 
-  public void handle(DescribeLineCommand command, AgentRepository agentRepository) {
+  public void handle(DescribeLineCommand command) {
     Assert.notNull(command, "null command");
-    Assert.notNull(agentRepository, "null agentRepository");
     Assert.state(getId().equals(command.getPackageId()),
         String.format("Invalid command! this.id=%s, which is not consistent with command.packageId=%s", getId(),
             command.getPackageId()));
     Assert.state(!(command.getSerialNumbers().isEmpty() && command.getMiscPieceCount() <= 0),
         "Invalid command! Must be itemized with serial numbers or include a misc. piece count, but not both!");
     Assert.state(StringUtils.hasText(command.getLineDescription()), "Invalid command! Missing line description.");
-
-    Agent agent = agentRepository.find(command.getAgentId());
 
     Line.Builder lineBuilder = new Line.Builder().setDescription(command.getLineDescription());
 
@@ -148,7 +144,7 @@ public final class Package {
       lineBuilder.setItem(itemBuilder.build());
     }
 
-    LineDescribed lae = new LineDescribed(id, nextVersion(), agent, lineBuilder.build(), takeNextLineId());
+    LineDescribed lae = new LineDescribed(id, nextVersion(), command.getAgent(), lineBuilder.build(), takeNextLineId());
     apply(lae);
   }
 
@@ -161,6 +157,18 @@ public final class Package {
   // ------------------------------------------------------------------------------
   // begin: event logic
   // ------------------------------------------------------------------------------
+
+  PackageEvent[] consumeChanges() {
+    PackageEvent[] consumedChanges;
+    if (this.changes == null) {
+      consumedChanges = new PackageEvent[] {};
+    }
+    else {
+      consumedChanges = this.changes.toArray(new PackageEvent[] {});
+    }
+    this.changes = null;
+    return consumedChanges;
+  }
 
   void play(Stream<PackageEvent> events) {
     Assert.notNull(events, "null events stream");
@@ -178,23 +186,6 @@ public final class Package {
     dispatch(event);
   }
 
-  private void apply(Stream<PackageEvent> events) {
-    Assert.notNull(events, "null events stream");
-    events.forEach(e -> apply(e));
-  }
-
-  PackageEvent[] consumeChanges() {
-    PackageEvent[] consumedChanges;
-    if (this.changes == null) {
-      consumedChanges = new PackageEvent[] {};
-    }
-    else {
-      consumedChanges = this.changes.toArray(new PackageEvent[] {});
-    }
-    this.changes = null;
-    return consumedChanges;
-  }
-
   /**
    * {@link #play(PackageCreated) Play} the given event and record it in
    * 
@@ -210,15 +201,15 @@ public final class Package {
   }
 
   private void dispatch(PackageEvent event) {
-    System.out.println(String.format("[DISPATCH] %s={%s}", event.getClass().getSimpleName(), event));
+    System.out.println(String.format("[event-play-dispatch] %s -> %s", event.getClass().getSimpleName(), event));
 
     if (event.getVersion() == 1) {
       play(PackageCreated.class.cast(event));
     }
     else {
       // After PackageCreated has been played (see first dispatch case above), the id MUST BE NON-NULL!!!!!
-      Assert.state(id != null, "Invalid event! Can not play the given event on an this unidentified Package; event: {"
-          + event.toString() + "}, package: {" + this.toString() + "}");
+      Assert.state(id != null, "Invalid event! Can not play the given event on an this unidentified Package; event: "
+          + event.toString() + ", package: " + this.toString());
       Assert.state(id.equals(event.getAggregateId()),
           "Invalid event; wrong id! this.id: " + id + "; event.aggregateId: " + event.getAggregateId());
 
@@ -248,7 +239,8 @@ public final class Package {
     if (this.lines == null) {
       this.lines = new HashMap<>();
     }
-    this.lines.put(takeNextLineId(), event.getLine());
+    this.lastLineId = event.getLineId();
+    this.lines.put(event.getLineId(), event.getLine());
   }
 
   // ------------------------------------------------------------------------------
@@ -302,12 +294,12 @@ public final class Package {
 
   @Override
   public String toString() {
-    return "{\"id\": {" + getId() + "}, \"version\": " + getVersion() + ", \"cause\": \"" + getCause()
-        + "\", \"parents\": "
+    return "{\"id\": " + getId() + ", \"version\": " + getVersion() + ", \"cause\": " + getCause() + ", \"parents\": "
         + getParents().stream().map(p -> p.getRawId().toString()).collect(Collectors.joining(", ", "[", "]"))
         + ", \"children\": "
         + getChildren().stream().map(c -> c.getRawId().toString()).collect(Collectors.joining(", ", "[", "]"))
-        + ", \"lines\": " + getLines().keySet().stream().map(lk -> String.format("%s: {%s}", lk, getLine(lk)))
-            .collect(Collectors.joining(", ", "{", "}")) + "}";
+        + ", \"lines\": " + getLines().keySet().stream().map(lk -> String.format("%s: %s", lk, getLine(lk)))
+            .collect(Collectors.joining(", ", "{", "}"))
+        + "}";
   }
 }

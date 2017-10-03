@@ -24,6 +24,7 @@ public class LineDescribed extends PackageEvent {
 
   @Override
   public String toString() {
-    return super.toString() + ", \"lineId\": " + lineId + ", \"line\": {" + line + "}";
+    String superString = super.toString();
+    return superString.substring(0, superString.length() - 1) + ", \"lineId\": " + lineId + ", \"line\": " + line + "}";
   }
 }

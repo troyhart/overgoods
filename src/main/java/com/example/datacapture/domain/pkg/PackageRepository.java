@@ -32,7 +32,7 @@ public class PackageRepository {
 
   public Optional<Package> find(PackageId id) {
     Assert.notNull(id, "null id");
-    System.out.println("lookup packageId: " + id);
+    System.out.println("[repo.find] packageId -> " + id);
     Optional<Package> op = Optional.empty();
     if (packages.containsKey(id)) {
       List<PackageEvent> packageEvents = packages.get(id);
@@ -55,7 +55,7 @@ public class PackageRepository {
       if (CollectionUtils.isNotEmpty(aggregateEvents)) {
         PackageEvent lastEvent = aggregateEvents.get(aggregateEvents.size() - 1);
         if (lastEvent.getVersion() + 1 == changes[0].getVersion()) {
-          System.out.println(String.format("[SAVED] %s={%s}", pkg.getClass().getSimpleName(), pkg));
+          System.out.println(String.format("[repo.save] %s -> %s", pkg.getClass().getSimpleName(), pkg));
           Arrays.stream(changes).forEach(e -> {
             aggregateEvents.add(e);
             eventPublisher.publish(e);
@@ -67,7 +67,7 @@ public class PackageRepository {
         }
       }
       else {
-        System.out.println(String.format("[SAVED] %s={%s}", pkg.getClass().getSimpleName(), pkg));
+        System.out.println(String.format("[repo.save] %s -> %s", pkg.getClass().getSimpleName(), pkg));
         Arrays.stream(changes).forEach(e -> {
           aggregateEvents.add(e);
           eventPublisher.publish(e);

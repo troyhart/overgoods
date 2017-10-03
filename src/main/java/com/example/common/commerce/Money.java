@@ -33,6 +33,10 @@ public class Money {
   private BigDecimal amount;
   private Currency currency;
 
+  public Money(BigDecimal amount) {
+    this(amount, Currency.USD);
+  }
+
   public Money(BigDecimal amount, Currency currency) {
     Assert.notNull(amount, "null amount");
     Assert.notNull(currency, "null currency");
@@ -90,11 +94,12 @@ public class Money {
   }
 
   public String toString(boolean fullscale) {
-    return (!isPositiveValue() ? "-" : "") + getCurrency().getSymbol() + getAmount(fullscale).abs().toString();
+    return String.format("%s%s%,." + (fullscale ? (amount.scale() + "f") : "2f"), (!isPositiveValue() ? "-" : ""),
+        getCurrency().getSymbol(), getAmount(fullscale).abs());
   }
 
   public static void main(String[] args) {
-    Money m0 = new Money(new BigDecimal(10.12345), Currency.USD);
+    Money m0 = new Money(new BigDecimal(10000000.12345), Currency.USD);
     System.out.println("m0: " + m0.toString(true));
     Money m1 = new Money(new BigDecimal(10.67899), Currency.YEN);
     System.out.println("m1: " + m1.toString(true));

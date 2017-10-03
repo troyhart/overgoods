@@ -2,6 +2,8 @@ package com.example.common.domain;
 
 public class EntityNotFoundException extends RuntimeException {
 
+  private static final long serialVersionUID = 1L;
+
   private EntityId entityId;
   private Class<?> entityType;
 
@@ -20,6 +22,6 @@ public class EntityNotFoundException extends RuntimeException {
 
   @Override
   public String getMessage() {
-    return String.format("Unable to find: %s.id={%s}", getEntityType().getSimpleName(), getEntityId());
+    return String.format("Unable to find entity of type %s, with id=%s", getEntityType().getSimpleName(), getEntityId());
   }
 }

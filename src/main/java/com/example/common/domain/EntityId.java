@@ -19,7 +19,7 @@ public class EntityId implements Serializable {
 
   @Override
   public String toString() {
-    return "\"rawId\": \"" + getRawId() + "\"";
+    return "{\"rawId\": \"" + getRawId() + "\"}";
   }
 
   @Override

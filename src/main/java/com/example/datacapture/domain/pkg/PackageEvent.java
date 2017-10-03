@@ -8,7 +8,6 @@ import org.springframework.util.Assert;
 import com.example.common.domain.Event;
 import com.example.common.domain.EventId;
 import com.example.datacapture.domain.agent.Agent;
-import com.example.datacapture.domain.agent.AgentId;
 
 
 /**
@@ -23,7 +22,7 @@ public class PackageEvent implements Event {
   private PackageId packageId;
   private long version;
   private Date capturedOn;
-  private AgentId capturedBy;
+  private Agent capturedBy;
 
   public PackageEvent(PackageId packageId, long version, Agent capturedBy) {
     Assert.notNull(packageId, "null packageId");
@@ -34,7 +33,7 @@ public class PackageEvent implements Event {
 
     this.packageId = packageId;
     this.version = version;
-    this.capturedBy = capturedBy.getId();
+    this.capturedBy = capturedBy;
     this.capturedOn = new Date();
   }
 
@@ -67,14 +66,14 @@ public class PackageEvent implements Event {
     return capturedOn;
   }
 
-  public AgentId capturedBy() {
+  public Agent capturedBy() {
     return capturedBy;
   }
 
   @Override
   public String toString() {
-    return "\"eventId\": {" + eventId + "},\"packageId\": {" + packageId + "}, \"version\": " + version
-        + ", \"capturedOn\": \"" + capturedOn + "\", \"capturedBy\": {" + capturedBy + "}";
+    return "{\"eventId\": " + eventId + ", \"packageId\": " + packageId + ", \"version\": " + version
+        + ", \"capturedOn\": \"" + capturedOn + "\", \"capturedBy\": " + capturedBy + "}";
   }
 
 

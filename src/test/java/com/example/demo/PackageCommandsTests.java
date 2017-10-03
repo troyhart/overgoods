@@ -11,6 +11,8 @@ import com.example.common.domain.EventPublisher;
 import com.example.common.domain.EventSubscriber;
 import com.example.common.domain.Handler;
 import com.example.common.infrastructure.TransactionHandler;
+import com.example.datacapture.domain.agent.Agent;
+import com.example.datacapture.domain.agent.AgentId;
 import com.example.datacapture.domain.agent.AgentRepository;
 import com.example.datacapture.domain.pkg.DescribeLineCommand;
 import com.example.datacapture.domain.pkg.LineDescribed;
@@ -35,8 +37,8 @@ public class PackageCommandsTests {
 
     private String description;
 
-    public CreatePackageCommand(String rawAgentId, String description) {
-      setRawAgentId(rawAgentId);
+    public CreatePackageCommand(Agent agent, String description) {
+      setAgent(agent);
       setDescription(description);
     }
 
@@ -56,8 +58,8 @@ public class PackageCommandsTests {
       Handler<CreatePackageCommand> handler = new Handler<CreatePackageCommand>() {
         @Override
         public void handle(CreatePackageCommand command) {
-          Package pkg = PackageFactory.instance().newPackage(packageRepository, agentRepository,
-              command.getDescription(), command.getAgentId());
+          Package pkg =
+              PackageFactory.instance().newPackage(packageRepository, command.getDescription(), command.getAgent());
           packageRepository.save(pkg);
         }
       };
@@ -69,7 +71,7 @@ public class PackageCommandsTests {
     final DescribeLineCommand cmd =
         new DescribeLineCommand().setLineDescription("a bunch of misc. junk").setMiscPieceCount(25);
     packageCreateds.forEach(pce -> {
-      cmd.setPackageId(pce.getAggregateId()).setAgentId(pce.capturedBy());
+      cmd.setPackageId(pce.getAggregateId()).setAgent(pce.capturedBy());
       Handler<DescribeLineCommand> handler = new Handler<DescribeLineCommand>() {
 
         @Override
@@ -78,7 +80,7 @@ public class PackageCommandsTests {
           if (!pkg.isPresent()) {
             throw new EntityNotFoundException(Package.class, pce.getAggregateId());
           }
-          pkg.get().handle(command, agentRepository);
+          pkg.get().handle(command);
           packageRepository.save(pkg.get());
         }
 
@@ -96,10 +98,10 @@ public class PackageCommandsTests {
     final PackageCommandsTests tests = new PackageCommandsTests();
     EventPublisher publisher = EventPublisher.instance().reset();
     doSubscriptions(packageCreateds, publisher);
-
-    tests.handleCreatePackageCommands(new CreatePackageCommand("1234", "label missing"),
-        new CreatePackageCommand("1234", "box torn"), new CreatePackageCommand("1234", "loose contents"),
-        new CreatePackageCommand("1234", "fraud stop"));
+    Agent agent = tests.agentRepository.find(new AgentId("1234"));
+    tests.handleCreatePackageCommands(new CreatePackageCommand(agent, "label missing"),
+        new CreatePackageCommand(agent, "box torn"), new CreatePackageCommand(agent, "loose contents"),
+        new CreatePackageCommand(agent, "fraud stop"));
 
     tests.handleDescribeLineCommands(packageCreateds);
 

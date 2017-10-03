@@ -50,8 +50,8 @@ public class Line {
 
   @Override
   public String toString() {
-    return String.format("\"description\": \"%s\", \"qty\": %s, %s", getDescription(), getQty(),
-        isItemized() ? "{" + itemization + "}" : "\"miscellaneous\": true");
+    return String.format("{\"description\": \"%s\", \"qty\": %s, %s", getDescription(), getQty(),
+        isItemized() ? "{" + itemization + "}" : "\"miscellaneous\": true}");
   }
 
   /**
@@ -149,8 +149,8 @@ public class Line {
 
     @Override
     public String toString() {
-      return "{\"estimatedUnitValue\":" + estimatedUnitValue + ", \"serialNumbers\":" + serialNumbers + ", \"item\":{"
-          + item + "}}";
+      return "{\"estimatedUnitValue\": \"" + estimatedUnitValue + "\", \"serialNumbers\":" + serialNumbers + ", \"item\": "
+          + item + "}";
     }
 
 

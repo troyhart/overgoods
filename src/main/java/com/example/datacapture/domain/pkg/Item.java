@@ -58,7 +58,6 @@ public class Item {
         + "}";
     
     // @formatter:on
-
   }
 
 
@@ -69,7 +68,7 @@ public class Item {
     private Item value;
 
     public Builder() {
-      this.value = new Item();
+      value = new Item();
     }
 
     public Item build() {
@@ -78,31 +77,31 @@ public class Item {
 
     public Builder setProductNumber(String productNumber) {
       Assert.hasText(productNumber, "null/blank productNumber");
-      this.value.productNumber = productNumber;
+      value.productNumber = productNumber;
       return this;
     }
 
     public Builder setProductName(String productName) {
       Assert.hasText(productName, "null/blank productName");
-      this.value.productName = productName;
+      value.productName = productName;
       return this;
     }
 
     public Builder setDetailedDescription(String detailedDescription) {
       Assert.hasText(detailedDescription, "null/blank detailedDescription");
-      this.value.detailedDescription = detailedDescription;
+      value.detailedDescription = detailedDescription;
       return this;
     }
 
-    public Builder addAttribute(Attribute attribute, String value) {
+    public Builder addAttribute(Attribute attribute, String attrVal) {
       Assert.notNull(attribute, "null attribute");
-      Assert.hasText(value, "null/blank value");
-      Assert.state(this.value.contains(attribute), "Invalid attribute; already defined");
+      Assert.hasText(attrVal, "null/blank attribute value");
+      Assert.state(!value.contains(attribute), "Invalid attribute; already defined");
 
-      if (this.value.attributes == null) {
-        this.value.attributes = new HashMap<>();
+      if (value.attributes == null) {
+        value.attributes = new HashMap<>();
       }
-      this.value.attributes.put(attribute, value);
+      value.attributes.put(attribute, attrVal);
       return this;
     }
   }

@@ -52,6 +52,6 @@ public class Agent {
 
   @Override
   public String toString() {
-    return getName() + " [" + getId() + "]";
+    return "{\"id\": " + getId() + ", \"name\": \"" + getName() + "\"}";
   }
 }

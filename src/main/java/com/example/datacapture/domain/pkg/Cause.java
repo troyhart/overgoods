@@ -8,6 +8,11 @@ public class Cause {
     return description;
   }
 
+  @Override
+  public String toString() {
+    return "{\"description\": \"" + description + "\"}";
+  }
+
   /**
    * A package local Cause builder
    */
@@ -26,10 +31,5 @@ public class Cause {
       value.description = description;
       return this;
     }
-  }
-
-  @Override
-  public String toString() {
-    return getDescription();
   }
 }

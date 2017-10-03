@@ -3,12 +3,12 @@ package com.example.datacapture.domain.pkg;
 import org.springframework.util.StringUtils;
 
 import com.example.common.domain.Command;
-import com.example.datacapture.domain.agent.AgentId;
+import com.example.datacapture.domain.agent.Agent;
 
 public abstract class PackageCommand implements Command {
 
   private PackageId packageId;
-  private AgentId agentId;
+  private Agent agent;
 
   public String getRawPackageId() {
     return packageId == null ? null : packageId.getRawId();
@@ -33,26 +33,12 @@ public abstract class PackageCommand implements Command {
     return this;
   }
 
-  public String getRawAgentId() {
-    return agentId == null ? null : agentId.getRawId();
+  public Agent getAgent() {
+    return agent;
   }
 
-  public final PackageCommand setRawAgentId(String rawAgentId) {
-    if (StringUtils.hasText(rawAgentId)) {
-      this.agentId = new AgentId(rawAgentId);
-    }
-    else {
-      this.agentId = null;
-    }
-    return this;
-  }
-
-  public AgentId getAgentId() {
-    return this.agentId;
-  }
-
-  public PackageCommand setAgentId(AgentId agentId) {
-    this.agentId = agentId;
+  public final PackageCommand setAgent(Agent agent) {
+    this.agent = agent;
     return this;
   }
 }
