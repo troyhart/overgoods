@@ -72,13 +72,15 @@ public class DataCapturePackageTest {
     cmd.setAgent(agent);
     cmd.setPackageId(pkg.getId());
     cmd.setLineDescription("A super cool thing");
+    // itemization
+    cmd.setItemName("Wizzy Banger");
+    cmd.setItemNumber("1234567890");
+    cmd.setEstimatedUnitValue(new Money(new BigDecimal(1000000)));
     cmd.setDetailedItemDescription("A super cool thing with a ton cool features");
     Set<String> serialNumbers = new HashSet<>();
     serialNumbers.add("123456");
     serialNumbers.add("789101");
     cmd.setSerialNumbers(serialNumbers);
-    cmd.setItemName("Wizzy Banger");
-    cmd.setItemNumber("1234567890");
     Map<Item.Attribute, String> attributes = new HashMap<>();
     attributes.put(Attribute.ACTOR, "Some Actor");
     attributes.put(Attribute.ARTIST, "Some Artist");
@@ -86,7 +88,6 @@ public class DataCapturePackageTest {
     attributes.put(Attribute.GENRE, "Some Genre");
     attributes.put(Attribute.LABEL, "Some Label");
     cmd.setAttributes(attributes);
-    cmd.setEstimatedUnitValue(new Money(new BigDecimal(1000000)));
     return cmd;
   }
 
@@ -103,7 +104,7 @@ public class DataCapturePackageTest {
           packageRepository.save(op.get());
         }
       });
-
+      // Test assertions
       assertTrue("Unexpected event state; expecting " + expectedEventSizeAfterCommand + " event, but received "
           + events.size(), events.size() == expectedEventSizeAfterCommand);
       LineDescribed event = (LineDescribed) events.get(expectedEventSizeAfterCommand - 1);
@@ -132,7 +133,7 @@ public class DataCapturePackageTest {
         packageRepository.save(pkg);
       }
     });
-
+    // Test assertions
     assertTrue(
         "Unexpected event state; expecting " + expectedEventSizeAfterCommand + " event, but received " + events.size(),
         events.size() == expectedEventSizeAfterCommand);
