@@ -15,4 +15,9 @@ public class OptimisticConcurrencyException extends RuntimeException {
   public List<? extends Event> getMissedEvents() {
     return missedEvents;
   }
+  
+  // Adding getMessage just to test code scanning
+  public String getMessage() {
+    return super.getMessage();
+  }
 }
